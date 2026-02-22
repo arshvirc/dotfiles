@@ -20,6 +20,9 @@ zstyle ':completion:*' menu select
 
 # 5. ALIASES
 alias dot-update="cd ~/dotfiles && ./install.sh && source ~/.zshrc"
+alias ts="$HOME/.tmux/scripts/tmux-sessions.sh"
+alias tds="$HOME/.tmux/scripts/tmux-delete-sessions.sh"
+alias tmux-help="$HOME/.tmux/scripts/tmux-help.sh"
 
 # 6. THE BRIDGE (Load machine-specific changes)
 if [ -f "$HOME/.zshrc.local" ]; then

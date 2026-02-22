@@ -44,4 +44,40 @@ if [ ! -f "$HOME/.zshrc.local" ]; then
     touch "$HOME/.zshrc.local"
 fi
 
+# 7. Install fzf if missing
+if ! command -v fzf &>/dev/null; then
+    echo "Installing fzf..."
+    if command -v apt-get &>/dev/null; then
+        sudo apt-get install -y fzf
+    elif command -v brew &>/dev/null; then
+        brew install fzf
+    else
+        echo "Please install fzf manually: https://github.com/junegunn/fzf"
+    fi
+fi
+
+# 8. Install TPM (tmux plugin manager) if missing
+if [ ! -d "$HOME/.tmux/plugins/tpm" ]; then
+    echo "Installing TPM..."
+    git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
+fi
+
+# 9. Symlink tmux.conf
+if [ -f "$HOME/.tmux.conf" ] && [ ! -L "$HOME/.tmux.conf" ]; then
+    echo "Found existing .tmux.conf. Backing up..."
+    mv "$HOME/.tmux.conf" "$HOME/.tmux.conf.bak"
+fi
+echo "Linking .tmux.conf from repo..."
+ln -sf "$DOTFILES_DIR/tmux/tmux.conf" "$HOME/.tmux.conf"
+
+# 10. Symlink tmux scripts
+mkdir -p "$HOME/.tmux/scripts"
+ln -sf "$DOTFILES_DIR/tmux/scripts/tmux-sessions.sh" "$HOME/.tmux/scripts/tmux-sessions.sh"
+ln -sf "$DOTFILES_DIR/tmux/scripts/tmux-delete-sessions.sh" "$HOME/.tmux/scripts/tmux-delete-sessions.sh"
+ln -sf "$DOTFILES_DIR/tmux/scripts/tmux-help.sh" "$HOME/.tmux/scripts/tmux-help.sh"
+
+# 11. Install tmux plugins
+echo "Installing tmux plugins..."
+"$HOME/.tmux/plugins/tpm/bin/install_plugins" 2>/dev/null || true
+
 echo "✅ Setup complete! Run 'source ~/.zshrc' or type 'dot-update'."
