@@ -46,6 +46,21 @@ To update later, run `dot-update` from anywhere.
 | `tmux-help` | Print quick-reference card in terminal |
 | `dot-update` | Pull latest dotfiles and reload shell |
 
+### Terminal support (iTerm2 + Ghostty)
+
+Works out of the box with both iTerm2 and [Ghostty](https://ghostty.org/):
+
+- On macOS, the installer installs Ghostty via Homebrew (`brew install --cask ghostty`) if it isn't already installed.
+- On Linux servers, the installer registers an `xterm-ghostty` terminfo entry (a fallback based on `xterm-256color`), so SSHing in from Ghostty doesn't break tmux/vim with `missing or unsuitable terminal`.
+- Tmux is configured for truecolor and OSC 52 clipboard with both terminals, so copy/paste works over SSH.
+- The zshrc falls back to `TERM=xterm-256color` if the incoming `TERM` has no terminfo on the machine, so a fresh box is usable even before running the installer.
+
+Optionally, install Ghostty's *full* terminfo on a server (instead of the fallback) by running this from your Mac:
+
+```bash
+infocmp -x xterm-ghostty | ssh <host> -- tic -x -
+```
+
 ## Repository Structure
 
 ```
@@ -69,8 +84,9 @@ The installer (`install.sh`) does the following:
 2. Installs Oh My Zsh and zsh plugins if missing
 3. Backs up any existing `~/.zshrc` and `~/.tmux.conf` before symlinking
 4. Installs `fzf` if not present
-5. Installs TPM and tmux plugins
-6. Symlinks all config files and scripts into place
+5. Installs Ghostty on macOS, and the `xterm-ghostty` terminfo everywhere
+6. Installs TPM and tmux plugins
+7. Symlinks all config files and scripts into place
 
 Existing configurations are never lost — they're backed up to `~/.zshrc.bak` and `~/.tmux.conf.bak`.
 

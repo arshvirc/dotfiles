@@ -56,13 +56,29 @@ if ! command -v fzf &>/dev/null; then
     fi
 fi
 
-# 8. Install TPM (tmux plugin manager) if missing
+# 8. Ghostty support
+# On macOS: install the Ghostty app (alongside iTerm2) if missing.
+if [ "$(uname)" = "Darwin" ] && command -v brew &>/dev/null; then
+    if [ ! -d "/Applications/Ghostty.app" ] && ! brew list --cask ghostty &>/dev/null; then
+        echo "Installing Ghostty..."
+        brew install --cask ghostty
+    fi
+fi
+# On any machine: make sure the xterm-ghostty terminfo exists, so SSHing in
+# from Ghostty doesn't break tmux/vim with "missing or unsuitable terminal".
+if ! infocmp xterm-ghostty &>/dev/null; then
+    echo "Installing xterm-ghostty terminfo (xterm-256color fallback)..."
+    printf 'xterm-ghostty|Ghostty terminal (xterm-256color fallback),\n\tuse=xterm-256color,\n' > /tmp/xterm-ghostty.ti
+    tic -x /tmp/xterm-ghostty.ti && rm -f /tmp/xterm-ghostty.ti
+fi
+
+# 9. Install TPM (tmux plugin manager) if missing
 if [ ! -d "$HOME/.tmux/plugins/tpm" ]; then
     echo "Installing TPM..."
     git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
 fi
 
-# 9. Symlink tmux.conf
+# 10. Symlink tmux.conf
 if [ -f "$HOME/.tmux.conf" ] && [ ! -L "$HOME/.tmux.conf" ]; then
     echo "Found existing .tmux.conf. Backing up..."
     mv "$HOME/.tmux.conf" "$HOME/.tmux.conf.bak"
@@ -70,13 +86,13 @@ fi
 echo "Linking .tmux.conf from repo..."
 ln -sf "$DOTFILES_DIR/tmux/tmux.conf" "$HOME/.tmux.conf"
 
-# 10. Symlink tmux scripts
+# 11. Symlink tmux scripts
 mkdir -p "$HOME/.tmux/scripts"
 ln -sf "$DOTFILES_DIR/tmux/scripts/tmux-sessions.sh" "$HOME/.tmux/scripts/tmux-sessions.sh"
 ln -sf "$DOTFILES_DIR/tmux/scripts/tmux-delete-sessions.sh" "$HOME/.tmux/scripts/tmux-delete-sessions.sh"
 ln -sf "$DOTFILES_DIR/tmux/scripts/tmux-help.sh" "$HOME/.tmux/scripts/tmux-help.sh"
 
-# 11. Install tmux plugins
+# 12. Install tmux plugins
 echo "Installing tmux plugins..."
 "$HOME/.tmux/plugins/tpm/bin/install_plugins" 2>/dev/null || true
 
