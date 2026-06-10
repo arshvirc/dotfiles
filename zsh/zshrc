@@ -34,3 +34,28 @@ alias tmux-help="$HOME/.tmux/scripts/tmux-help.sh"
 if [ -f "$HOME/.zshrc.local" ]; then
     source "$HOME/.zshrc.local"
 fi
+
+# 7. PROMPT — full-width separator line, then cwd + git status.
+# Set after the bridge so machine-local files (or themes they load)
+# can't clobber it. Single quotes + prompt_subst: expanded at every
+# prompt draw, so the line tracks terminal width, and
+# $(git_prompt_status) stays literal in $PROMPT — required for
+# oh-my-zsh's async git prompt to register its handler.
+# ${(pl:...)} instead of tr because tr is byte-oriented and corrupts ─.
+ZSH_THEME_MY_COLOR="%F{240}"
+ZSH_THEME_BLUE="%F{blue}"
+ZSH_THEME_RESET="%f"
+
+# Symbols git_prompt_status renders (it prints nothing without these)
+ZSH_THEME_GIT_PROMPT_ADDED=" %F{green}✚%f"
+ZSH_THEME_GIT_PROMPT_MODIFIED=" %F{yellow}✱%f"
+ZSH_THEME_GIT_PROMPT_DELETED=" %F{red}✖%f"
+ZSH_THEME_GIT_PROMPT_RENAMED=" %F{magenta}➜%f"
+ZSH_THEME_GIT_PROMPT_UNMERGED=" %F{red}═%f"
+ZSH_THEME_GIT_PROMPT_UNTRACKED=" %F{cyan}?%f"
+ZSH_THEME_GIT_PROMPT_STASHED=" %F{blue}⚑%f"
+
+setopt prompt_subst
+PROMPT='${ZSH_THEME_MY_COLOR}${(pl:COLUMNS::─:)}%f
+${ZSH_THEME_BLUE}%~${ZSH_THEME_RESET}$(git_prompt_status)%f
+'
